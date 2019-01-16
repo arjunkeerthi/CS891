@@ -38,7 +38,8 @@ public class RunnableThreadsMgr
         // Return a new SimpleBeingRunnable instance.
         // TODO -- you fill in here, replacing null with the
         // appropriate code.
-        return null;
+
+        return new SimpleBeingRunnable(this);
     }
 
     /**
@@ -50,13 +51,23 @@ public class RunnableThreadsMgr
         // Call a method to create and start a thread for each being.
         // TODO -- you fill in here.
 
+        beginBeingThreads();
+
         // Call a method that creates and starts a thread that's then
         //  used to wait for all the being threads to finish and
         //  return that thread to the caller.
         // TODO -- you fill in here.
 
+        Thread waiter = createAndStartWaiterForBeingThreads();
+
         // Block until the waiter thread has finished.
         // TODO -- you fill in here.
+
+        try {
+            waiter.join();
+        } catch(Exception e) {
+            shutdownNow();
+        }
     }
 
     /**
@@ -78,8 +89,17 @@ public class RunnableThreadsMgr
         //
         // TODO -- you fill in here.
 
+        List<SimpleBeingRunnable> beings = getBeings();
+        mBeingThreads = new ArrayList<>();
+
+        for(SimpleBeingRunnable being : beings) {
+            mBeingThreads.add(new Thread(being));
+        }
+
         // Start all the threads in the List of Threads.
         // TODO -- you fill in here.
+
+        for(Thread t : mBeingThreads) t.start();
     }
 
     /**
@@ -97,12 +117,26 @@ public class RunnableThreadsMgr
         // shutdownNow() request.
         // TODO -- you fill in here.
 
+        Thread waiter = new Thread(() -> {
+            try {
+                for(Thread t : mBeingThreads) {
+                    t.join();
+                }
+            } catch(Exception e) {
+                shutdownNow();
+            }
+
+        });
+
         // Start running the thread.
         // TODO -- you fill in here.
 
+        waiter.start();
+
         // Return the thread.
         // TODO -- you fill in here, replacing null with the thread that was created.
-        return null;
+
+        return waiter;
     }
 
     /**
