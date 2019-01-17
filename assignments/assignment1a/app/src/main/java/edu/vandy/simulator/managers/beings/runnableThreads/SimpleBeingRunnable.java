@@ -56,8 +56,7 @@ public class SimpleBeingRunnable
         } catch(Exception e) {
             error(e.toString());
         } finally {
-            releasePalantir(palantir);
+            if(palantir != null) releasePalantir(palantir);
         }
-
     }
 }
